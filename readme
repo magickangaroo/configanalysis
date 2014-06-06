@@ -2,3 +2,4 @@ parses firewalls for bad stuff
 
 
 Currently looking for bad things wihtin a fortify config
+and junos config exported with display set
