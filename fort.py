@@ -30,7 +30,6 @@ def parsetheconfig(conf):
                 #if here we are starting a rule
                 parsingrule = True
 
-
             if endofrule in line and parsingrule is True:
                 #if here we are ending a rule
                 if len(temporaryrulelist) > 0:
@@ -40,11 +39,9 @@ def parsetheconfig(conf):
             if endofrule in line:
                 parsingrule = False
 
-
             if parsingrules + parsingrule == 2:
                 #if here, we have started parsing rules and a rule
                 temporaryrulelist.append(line.strip('\r\n').strip(' '))
-
 
     return hostname, rulelist
 
@@ -71,10 +68,6 @@ def main():
     for key, value in alerts.iteritems():
         print key, value
         print key, len(value)
-
-
-
-
 
 
 if __name__ == "__main__":
