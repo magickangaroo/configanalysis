@@ -62,12 +62,13 @@ def main():
     for rule in rulelist:
         for key, value in baddict.iteritems():
             if value in rule:
-                print "Alert Rule found with " + key + " rule -> " + rule[0]
+                print "[*] Alert Rule found with " + key + " rule -> " + rule[0]
                 alerts[key].append(rule[0].replace("edit", "rule"))
 
+    print "---Summary---"
     for key, value in alerts.iteritems():
-        print key, value
-        print key, len(value)
+        print "[*] " + str(key) + " " + str(value) + " total " + str(len(value))
+
 
 
 if __name__ == "__main__":
