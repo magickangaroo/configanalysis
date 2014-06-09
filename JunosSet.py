@@ -7,6 +7,8 @@ import re
 
 debug = "yes"
 
+
+#http://www.peterbe.com/plog/uniqifiers-benchmark
 def f2(seq):
    # order preserving
    checked = []
