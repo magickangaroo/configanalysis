@@ -4,18 +4,11 @@ __author__ = 'adz'
 import sys
 from netaddr import *
 import re
+import os
+import commonfunctions
 
-debug = "yes"
 
-
-#http://www.peterbe.com/plog/uniqifiers-benchmark
-def f2(seq):
-   # order preserving
-   checked = []
-   for e in seq:
-       if e not in checked:
-           checked.append(e)
-   return checked
+debug = "no"
 
 
 
@@ -73,7 +66,7 @@ def parsetheconfig(conf):
                     #were dealing with logical system
                     logicalsystem = policyfoundinconfig.split()[2]
                 else:
-                    logicalsystem = "Base"
+                    logicalsystem = "BaseSystem"
 
                 #if permitedpolicy.split[5] == "global":
                     #Global policies are shorter.
@@ -83,39 +76,62 @@ def parsetheconfig(conf):
                 if debug == "yes":
                     print "[*] Alert Rule found with " + key + " rule -> " + questionablebit
                     print "Line was:"
+                    print policyfoundinconfig
                     print questionablebit.split("match")[0].strip(" ")
 
                 entry = questionablebit.split("match")[0].strip(" ")
                 entry = entry.split("then")[0]
-                if logicalsystem != "base":
-                    entry = logicalsystem + " " + entry
-                alerts[key].append(entry)
+
+                entry = logicalsystem + " " + entry
+
+                entrydictionary = {entry: policyfoundinconfig}
+                alerts[key].append(entrydictionary)
 
 
     #Now we have our questionable rules, Lets see if they are permited rather than denies
+    report = []
     print str(alerts["hostname"]).upper()
     print "---Summary---"
 
-    print "[I] Total permited policies line entries : " + str(len(policiesfoundinconfig))
-    print "[I] Total Catogories of issues Searched for " + str(baddictinit)
-    print "[I] Additional Catagories found during parsing " + str(len(baddict) - baddictinit)
-    print "[I] Additions were " + str(badadditions)
-    report = []
-    #print permitedpolicies
+    report.append("[I] Total policy line entries : " + str(len(policiesfoundinconfig)) + "\n")
+    report.append("[I] Total Categories of issues Searched for " + str(baddictinit) + "\n")
+    report.append("[I] Additional Categories found during parsing " + str(len(baddict) - baddictinit) + "\n")
+    report.append("[I] Additions were " + str(badadditions) + "\n")
+
+    hostname = alerts["hostname"].upper()
+    basedir = "outputs/" + hostname
+    commonfunctions.makedirs(basedir)
+
     for key, value in alerts.iteritems():
         if key != "hostname":
-            for entry in value:
-                if any(entry.split()[1] in permitted for permitted in permittedpolicies):
-                    report.append("[!] " + key + " policy named " + entry)
+            dir = basedir + "/" + key.replace("/", "_")
+            commonfunctions.makedirs(dir)
+            type = key
+            for entrydictionary in value:
+                for key, value in entrydictionary.iteritems():
+                    virtualsystem = key.split()[0]
 
-    for each in f2(report):
-        print each
+                    finaldir = dir + "/" + virtualsystem
+                    commonfunctions.makedirs(dir + "/" + virtualsystem)
+
+                    if any(key.split()[1] in permitted for permitted in permittedpolicies):
+
+                        #print "[!] " + key + " policy entry " + value
+
+                        with open(finaldir + "/" + key.split()[1], 'a') as f:
+                                f.write(value)
+
+                        report.append("[!] " + type + " " + key + " policy entry below \n" + value + "\n")
+
+
+    with open(basedir + "/summary.txt", 'a') as f:
+        for each in commonfunctions.f2(report):
+            f.write(each)
+
+
 
 def main():
     parsetheconfig(sys.argv[1])
-
-
-
 
 if __name__ == "__main__":
     main()
